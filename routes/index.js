@@ -11,7 +11,6 @@ router.get('/', function(req, res, next) {
 
 router.get("/:catUri", category_controller.category_detail);
 
-//should I rather put this router inside the category controller?
-router.get("/:catUri/:planturi", plant_controller.plant_detail_detail);
+router.get("/:catUri/:planturi", plant_controller.plant_detail);
 
 module.exports = router;
