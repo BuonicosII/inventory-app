@@ -11,6 +11,6 @@ router.get('/', function(req, res, next) {
 
 router.get("/:catUri", category_controller.category_detail);
 
-router.get("/:catUri/:planturi", plant_controller.plant_detail);
+router.get("/:catUri/:plantUri", plant_controller.plant_detail);
 
 module.exports = router;

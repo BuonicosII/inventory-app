@@ -11,6 +11,7 @@ const PlantSchema = new Schema({
 })
 
 PlantSchema.virtual("url").get(function () {
+
     return  `/${this.category[0].uri}/${this.uri}`
 })
 
