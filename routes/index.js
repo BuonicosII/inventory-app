@@ -6,7 +6,7 @@ const plant_controller = require("../controllers/plantController")
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Verde Vivarium' });
 });
 
 router.get("/:catUri", category_controller.category_detail);
