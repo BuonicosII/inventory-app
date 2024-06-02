@@ -7,6 +7,12 @@ exports.category_detail = asyncHandler( async (req, res, next) => {
     
     const searchedCategory = await Category.findOne({ uri: req.params.catUri}).exec()
 
+    if (searchedCategory === null) {
+        const err = new Error("Page not found")
+        err.status = 404;
+        return next(err);
+    }
+
     const allPlants = await Plant.find({ category: searchedCategory.id}).populate("category").exec()
 
 
