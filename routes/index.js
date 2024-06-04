@@ -9,9 +9,9 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Verde Vivarium' });
 });
 
-router.get('/add-category', function(req, res, next) {
-  res.render('add_category_form', { title: 'Add category' });
-})
+router.get('/add-category', category_controller.create_category_get);
+
+router.post('/add-category', category_controller.create_category_post)
 
 router.get("/:catUri", category_controller.category_detail);
 
