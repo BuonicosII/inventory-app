@@ -1,0 +1,36 @@
+extends layout
+
+block content
+      form(method='POST')
+          label(for='name') Plant name:
+          input#name(type='text', placeholder='Your plant name' name='name' required value=(undefined===plant ? '' : plant.name) )
+          label(for='description') Plant description:
+          input#description(type='text', placeholder='Your plant description' name='description' required value=(undefined===plant ? '' : plant.description) )
+          label(for='stock') Plant stock:
+          input#stock(type='number' placeholder=1 name="stock" required min="1" value=(undefined===plant ? null : plant.instock))
+          label(for='price') Plant price (in €):
+          input#price(type='number' placeholder=0 name="number" required min="1" value=(undefined===plant ? null : plant.price))
+          label(for='main') Main Category:
+          select(value='') --Select Main Category 
+            each category in categories 
+                if (undefined===plant || plant.category[0].name !== category.name)
+                    option(value=category.name)= category.name 
+                else
+                    option(value=category.name selected)= category.name 
+          label Other Categories 
+          div 
+            for category in categories 
+              div(style='display: flex; padding-right:10px;')
+                if (undefined===plant)
+                  input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id)
+                else if (plant.category.some(e => e._id === category._id))
+                  input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id checked)
+                else
+                  input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id)
+                label(for=category._id) &nbsp;#{category.name}
+          button(type='submit') Submit
+
+      if errors
+        ul
+          for error in errors
+            li!= error.msg 

@@ -17,3 +17,10 @@ exports.plant_detail = asyncHandler( async (req, res, next) => {
 
     res.render("plant", { plant: searchedPlant})
 })
+
+exports.create_plant_get = asyncHandler( async (req, res, next) => {
+
+    const categories = await Category.find().exec()
+
+    res.render('add_plant_form', { title: 'Add plant', categories: categories });
+})
