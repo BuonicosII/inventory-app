@@ -1,5 +1,6 @@
 const Plant = require("../models/plant")
 const Category = require("../models/category")
+const { body, validationResult } = require("express-validator")
 const asyncHandler = require("express-async-handler")
 
 exports.plant_detail = asyncHandler( async (req, res, next) => {
@@ -24,3 +25,44 @@ exports.create_plant_get = asyncHandler( async (req, res, next) => {
 
     res.render('add_plant_form', { title: 'Add plant', categories: categories });
 })
+
+exports.create_plant_post = [
+
+    (req, res, next) => {
+        if (!Array.isArray(req.body.category)) {
+            req.body.category =
+              typeof req.body.category === "undefined" ? [] : [req.body.category];
+          }
+        next()
+    },
+    body("name").trim().isLength({ min: 1}).escape().withMessage("Plant must have a name"),
+    body("description").trim().isLength({ min: 1}).escape().withMessage("Plant must have a description"),
+    body("stock").trim().isLength({ min: 1}).escape().isInt({ min: 1}).withMessage("Stock must at least be 1"),
+    body("price").trim().isLength({ min: 1}).escape().isInt({min: 1}).withMessage("Price must be greater than zero"),
+    body("main").trim().isLength({ min: 1}).escape().withMessage("Plant must have a main category"),
+    body("category.*").escape(),
+
+    asyncHandler(async (req, res, next) => {
+        const errors = validationResult(req);
+
+        const plant = new Plant({
+            name: req.body.name,
+            description: req.body.description,
+            inStock: req.body.stock,
+            price: req.body.price,
+            category: [req.body.main].concat(req.body.category.filter( cat => cat !== req.body.main)),
+            uri: req.body.name.toLowerCase().replace(/\s+/g, "-")
+        })
+
+        const categories = await Category.find().exec()
+
+        if (!errors.isEmpty()) {
+
+            res.render('add_plant_form', { title: 'Add plant', categories: categories, plant: plant, errors: errors.array() });
+
+        } else {
+            await plant.save(),
+            res.redirect(`/${categories.find( ({ id }) => id === req.body.main).uri}/${plant.uri}`)
+        }
+    })
+]

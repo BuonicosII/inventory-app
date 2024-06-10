@@ -9,14 +9,15 @@ block content
           label(for='stock') Plant stock:
           input#stock(type='number' placeholder=1 name="stock" required min="1" value=(undefined===plant ? null : plant.instock))
           label(for='price') Plant price (in €):
-          input#price(type='number' placeholder=0 name="number" required min="1" value=(undefined===plant ? null : plant.price))
+          input#price(type='number' placeholder=0 name="price" required min="1" value=(undefined===plant ? null : plant.price))
           label(for='main') Main Category:
-          select(value='') --Select Main Category 
+          select(name='main' required)
+            option(value='') --Select Main Category 
             each category in categories 
                 if (undefined===plant || plant.category[0].name !== category.name)
-                    option(value=category.name)= category.name 
+                    option(value=category._id)= category.name 
                 else
-                    option(value=category.name selected)= category.name 
+                    option(value=category._id selected)= category.name 
           label Other Categories 
           div 
             for category in categories 
