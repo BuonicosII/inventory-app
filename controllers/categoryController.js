@@ -80,3 +80,43 @@ exports.update_category_post = [
         }
     })
 ]
+
+exports.category_delete_get = asyncHandler(async (req, res, next) => {
+
+    const [category, plants] = await Promise.all([
+      Category.findById(req.query.id).exec(),
+      Plant.find({ category: req.query.id }).populate("category").exec(),
+    ]);
+  
+    if (category === null) {
+      // No results.
+      res.redirect("/");
+    }
+  
+    res.render("category_delete", {
+      title: "Delete Category",
+      category: category,
+      plants: plants,
+    });
+  });
+
+exports.category_delete_post = asyncHandler( async (req, res, next) => {
+    
+    const [category, plants] = await Promise.all([
+        Category.findById(req.body.categoryid).exec(),
+        Plant.find({ category: req.body.categoryid }).populate("category").exec(),
+      ]);
+    
+      if (plants.length > 0) {
+        res.render("category_delete", {
+            title: "Delete Category",
+            category: category,
+            plants: plants,
+          });
+      } else {
+        await Category.findByIdAndDelete(req.body.categoryid)
+        res.redirect("/")
+      }
+    
+
+});

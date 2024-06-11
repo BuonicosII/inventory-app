@@ -1,0 +1,24 @@
+extends layout
+
+block content
+
+  h1 #{title}: #{category.name}
+
+  if plants.length
+
+    p #[strong Delete the following plants before eliminating the category]
+    div(style='margin-left:20px;margin-top:20px')
+      h4 Plants
+      dl
+        each plant in plants
+          dt
+            a(href=plant.url) #{plant.name}
+
+  else
+    p Do you really want to delete this Category?
+
+    form(method='POST')
+      div.form-group
+        input#bookid.form-control(type='hidden', name='categoryid', value=category._id )
+
+      button.btn.btn-primary(type='submit') Delete

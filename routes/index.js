@@ -21,6 +21,10 @@ router.get('/update-category', category_controller.update_category_get)
 
 router.post('/update-category', category_controller.update_category_post)
 
+router.get('/delete-category', category_controller.category_delete_get)
+
+router.post('/delete-category', category_controller.category_delete_post)
+
 router.get("/:catUri", category_controller.category_detail);
 
 router.get("/:catUri/:plantUri", plant_controller.plant_detail);
