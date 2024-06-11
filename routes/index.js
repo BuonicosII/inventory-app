@@ -17,6 +17,10 @@ router.get('/add-plant', plant_controller.create_plant_get)
 
 router.post('/add-plant', plant_controller.create_plant_post)
 
+router.get('/update-category', category_controller.update_category_get)
+
+router.post('/update-category', category_controller.update_category_post)
+
 router.get("/:catUri", category_controller.category_detail);
 
 router.get("/:catUri/:plantUri", plant_controller.plant_detail);

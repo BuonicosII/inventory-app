@@ -7,3 +7,5 @@ block content
     each plant in plants_in_category
       li 
         a(href=plant.url) #{plant.name}
+  a(href=`/update-category?id=${id}`)
+    button Update Category
