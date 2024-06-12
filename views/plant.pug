@@ -7,3 +7,5 @@ block content
   p Description: #{plant.description}
   p In Stock: #{plant.inStock}
   p Price: #{plant.price}€
+  a(href=`/update-plant?id=${plant.id}`)
+    button Update plant
