@@ -1,0 +1,13 @@
+extends layout
+
+block content
+
+  h1 #{title}: #{plant.name}
+
+  p Do you really want to delete this Plant?
+
+  form(method='POST')
+    div.form-group
+      input#bookid.form-control(type='hidden', name='plantid', value=plant.id )
+
+    button.btn.btn-primary(type='submit') Delete

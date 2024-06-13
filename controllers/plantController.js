@@ -124,3 +124,25 @@ exports.update_plant_post = [
         }
     })
 ]
+
+exports.delete_plant_get = asyncHandler(async (req, res, next) => {
+
+    const plant = await Plant.findById(req.query.id).populate("category").exec()
+  
+    if (plant === null) {
+      // No results.
+      res.redirect("/");
+    }
+  
+    res.render("plant_delete", {
+      title: "Delete Plant",
+      plant: plant
+    });
+  });
+
+exports.delete_plant_post = asyncHandler( async (req, res, next) => {
+
+    await Plant.findByIdAndDelete(req.body.plantid)
+    res.redirect("/")
+    }
+);
