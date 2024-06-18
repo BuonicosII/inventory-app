@@ -1,7 +1,7 @@
 extends layout
 
 block content
-      form(method='POST')
+      form(method='POST', enctype='multipart/form-data')
           label(for='name') Plant name:
           input#name(type='text', placeholder='Your plant name' name='name' required value=(undefined===plant ? '' : plant.name) )
           label(for='description') Plant description:

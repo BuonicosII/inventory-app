@@ -1,7 +1,7 @@
 extends layout
 
 block content
-      form(method='POST')
+      form(method='POST', enctype='multipart/form-data')
           label(for='name') Category name:
           input#name(type='text', placeholder='Your category name' name='name' required value=(undefined===category ? '' : category.name) )
           button(type='submit') Submit
