@@ -2,6 +2,8 @@ const Plant = require("../models/plant")
 const Category = require("../models/category")
 const { body, validationResult } = require("express-validator")
 const asyncHandler = require("express-async-handler")
+const upload = require("../multer-config")
+const cloudinary = require("../cloudinary-config")
 
 exports.plant_detail = asyncHandler( async (req, res, next) => {
 
@@ -27,7 +29,7 @@ exports.create_plant_get = asyncHandler( async (req, res, next) => {
 })
 
 exports.create_plant_post = [
-
+    upload.single("image"),
     (req, res, next) => {
         if (!Array.isArray(req.body.category)) {
             req.body.category =
@@ -44,15 +46,23 @@ exports.create_plant_post = [
 
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
-
+        
         const plant = new Plant({
             name: req.body.name,
             description: req.body.description,
             inStock: req.body.stock,
             price: req.body.price,
             category: [req.body.main].concat(req.body.category.filter( cat => cat !== req.body.main)),
-            uri: req.body.name.toLowerCase().replace(/\s+/g, "-")
+            uri: req.body.name.toLowerCase().replace(/\s+/g, "-"),
+            imageUrl: ""
         })
+        if (req.file) {
+            const b64 = Buffer.from(req.file.buffer).toString("base64");
+            let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+            const cloudImage = await cloudinary.uploader.upload(dataURI)
+            plant.imageUrl = cloudImage.url
+            console.log(cloudImage)
+        }
 
         const categories = await Category.find().exec()
 
@@ -84,7 +94,7 @@ exports.update_plant_get = asyncHandler( async (req, res, next) => {
 })
 
 exports.update_plant_post = [
-
+    upload.none(),
     (req, res, next) => {
         if (!Array.isArray(req.body.category)) {
             req.body.category =

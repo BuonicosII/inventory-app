@@ -21,3 +21,7 @@ form {
   gap: 20px;
   width: 200px
 }
+
+img {
+  max-width: 300px;
+}
