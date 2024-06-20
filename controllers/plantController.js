@@ -61,7 +61,6 @@ exports.create_plant_post = [
             let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
             const cloudImage = await cloudinary.uploader.upload(dataURI)
             plant.imageUrl = cloudImage.url
-            console.log(cloudImage)
         }
 
         const categories = await Category.find().exec()
@@ -94,7 +93,7 @@ exports.update_plant_get = asyncHandler( async (req, res, next) => {
 })
 
 exports.update_plant_post = [
-    upload.none(),
+    upload.single("image"),
     (req, res, next) => {
         if (!Array.isArray(req.body.category)) {
             req.body.category =
@@ -121,6 +120,13 @@ exports.update_plant_post = [
             uri: req.body.name.toLowerCase().replace(/\s+/g, "-"),
             _id: req.query.id
         })
+
+        if (req.file) {
+            const b64 = Buffer.from(req.file.buffer).toString("base64");
+            let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+            const cloudImage = await cloudinary.uploader.upload(dataURI)
+            plant.imageUrl = cloudImage.url
+        }
 
         const categories = await Category.find().exec()
 
