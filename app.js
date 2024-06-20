@@ -37,7 +37,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(compression())
-app.use(helmet());
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    "img-src": ["'self'", "https: data:"]
+  }
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
