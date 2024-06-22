@@ -55,13 +55,13 @@ exports.update_category_get =  asyncHandler( async (req, res, next) => {
         return next(err);
     }
 
-    res.render('add_category_form', { title: 'Update category', category: category })
+    res.render('add_category_form', { title: 'Update category', category: category, update: "update" })
 })
 
 exports.update_category_post = [
-    body("name").trim().isLength({ min: 1}).escape().withMessage("Category must have a a name")
-    //.isAlphanumeric().withMessage("Name must be alphanumeric!")
-    ,
+    body("name").trim().isLength({ min: 1}).escape().withMessage("Category must have a a name"),
+    body("password").trim().isLength({ min: 1}).escape().withMessage("You must insert the password").equals("password").withMessage("Wrong password!"),
+    
     asyncHandler( async (req, res, next) => {
         const errors = validationResult(req)
 
@@ -72,7 +72,7 @@ exports.update_category_post = [
         })
 
         if (!errors.isEmpty()) {
-            res.render('add_category_form', { title: 'Update category', category: category, errors: errors.array() })
+            res.render('add_category_form', { title: 'Update category', category: category, errors: errors.array(), update: "update" })
 
         } else {
             await Category.findByIdAndUpdate(req.query.id, category, {})
