@@ -111,6 +111,8 @@ exports.update_plant_post = [
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
 
+//        const originalplant = await Plant.findById(req.query.id).exec()
+
         const plant = new Plant({
             name: req.body.name,
             description: req.body.description,
@@ -118,10 +120,17 @@ exports.update_plant_post = [
             price: req.body.price,
             category: [req.body.main].concat(req.body.category.filter( cat => cat !== req.body.main)),
             uri: req.body.name.toLowerCase().replace(/\s+/g, "-"),
+//            imageUrl: originalplant.imageUrl,
             _id: req.query.id
         })
 
-        if (req.file) {
+//         console.log(req.body.newImage === "true")
+
+        if (req.body.newImage && !req.file) {
+            plant.imageUrl = ""
+        }
+
+        if (req.body.newImage && req.file) {
             const b64 = Buffer.from(req.file.buffer).toString("base64");
             let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
             const cloudImage = await cloudinary.uploader.upload(dataURI)
