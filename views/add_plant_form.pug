@@ -30,10 +30,12 @@ block content
                   input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id)
                 label(for=category._id) &nbsp;#{category.name}
           input(type='file' name="image")
-          if (plant)
+          if (update)
             div(style='display: flex; padding-right:10px;')
               input.checkbox-input(type='checkbox', name='newImage', id='newImage', value="true")
               label(for='newImage') &nbsp;Update image
+            laberl(for='password') Confirm with the password
+            input(type='password', name='password')
           button(type='submit') Submit
 
       if errors

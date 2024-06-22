@@ -83,13 +83,14 @@ exports.update_plant_get = asyncHandler( async (req, res, next) => {
         Category.find().exec()
     ])
 
+
     if (plant === null) {
         const err = new Error("Plant not found");
         err.status = 404;
         return next(err);
     }
 
-    res.render('add_plant_form', { title: 'Update plant', categories: categories, plant: plant })
+    res.render('add_plant_form', { title: 'Update plant', categories: categories, plant: plant, update: "update" })
 })
 
 exports.update_plant_post = [
@@ -107,11 +108,11 @@ exports.update_plant_post = [
     body("price").trim().isLength({ min: 1}).escape().isInt({min: 1}).withMessage("Price must be greater than zero"),
     body("main").trim().isLength({ min: 1}).escape().withMessage("Plant must have a main category"),
     body("category.*").escape(),
+    body("password").trim().isLength({ min: 1}).escape().withMessage("You must insert the password").equals("password").withMessage("Wrong password!"),
 
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
 
-//        const originalplant = await Plant.findById(req.query.id).exec()
 
         const plant = new Plant({
             name: req.body.name,
@@ -120,11 +121,9 @@ exports.update_plant_post = [
             price: req.body.price,
             category: [req.body.main].concat(req.body.category.filter( cat => cat !== req.body.main)),
             uri: req.body.name.toLowerCase().replace(/\s+/g, "-"),
-//            imageUrl: originalplant.imageUrl,
             _id: req.query.id
         })
 
-//         console.log(req.body.newImage === "true")
 
         if (req.body.newImage && !req.file) {
             plant.imageUrl = ""
@@ -141,7 +140,13 @@ exports.update_plant_post = [
 
         if (!errors.isEmpty()) {
 
-            res.render('add_plant_form', { title: 'Update plant', categories: categories, plant: plant, errors: errors.array() });
+            const newArray = await Promise.all(plant.category.map( id => {
+                return Category.findById(id).exec()
+            }))
+
+            plant.category = newArray
+
+            res.render('add_plant_form', { title: 'Update plant', categories: categories, plant: plant, update: "update", errors: errors.array() });
 
         } else {
             await Plant.findByIdAndUpdate(req.query.id, plant, {})
