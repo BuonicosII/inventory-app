@@ -14,11 +14,16 @@ block content
           dt
             a(href=plant.url) #{plant.name}
 
-  else
+  else if (!confirm)
     p Do you really want to delete this Category?
-
+    a(href=`/delete-category?id=${category.id}&confirm=yes`)
+      button.btn.btn-primary Delete
+  else
+    p Confirm with the password
     form(method='POST')
       div.form-group
         input#bookid.form-control(type='hidden', name='categoryid', value=category.id )
-
+        input(type='password', name='password')
+      if (errors)
+        p= errors[0].msg
       button.btn.btn-primary(type='submit') Delete

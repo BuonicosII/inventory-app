@@ -97,11 +97,16 @@ exports.category_delete_get = asyncHandler(async (req, res, next) => {
       title: "Delete Category",
       category: category,
       plants: plants,
+      confirm: req.query.confirm
     });
   });
 
-exports.category_delete_post = asyncHandler( async (req, res, next) => {
+exports.category_delete_post = [
+    body("password").trim().isLength({ min: 1}).escape().withMessage("You must insert the password").equals("password").withMessage("Wrong password!"),
+    asyncHandler( async (req, res, next) => {
     
+    const errors = validationResult(req);
+
     const [category, plants] = await Promise.all([
         Category.findById(req.body.categoryid).exec(),
         Plant.find({ category: req.body.categoryid }).populate("category").exec(),
@@ -112,6 +117,14 @@ exports.category_delete_post = asyncHandler( async (req, res, next) => {
             title: "Delete Category",
             category: category,
             plants: plants,
+          });       
+      } else if (!errors.isEmpty()){
+        res.render("category_delete", {
+            title: "Delete Category",
+            category: category,
+            plants: plants,
+            confirm: req.query.confirm,
+            errors: errors.array()
           });
       } else {
         await Category.findByIdAndDelete(req.body.categoryid)
@@ -119,4 +132,4 @@ exports.category_delete_post = asyncHandler( async (req, res, next) => {
       }
     
 
-});
+})];
