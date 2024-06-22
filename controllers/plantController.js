@@ -149,16 +149,32 @@ exports.delete_plant_get = asyncHandler(async (req, res, next) => {
       // No results.
       res.redirect("/");
     }
-  
+
     res.render("plant_delete", {
       title: "Delete Plant",
-      plant: plant
+      plant: plant,
+      confirm: req.query.confirm
     });
   });
 
-exports.delete_plant_post = asyncHandler( async (req, res, next) => {
+exports.delete_plant_post = [
+    body("password").trim().isLength({ min: 1}).escape().withMessage("You must insert the password").equals("password").withMessage("Wrong password!"),
+    asyncHandler( async (req, res, next) => {
+    
+    const errors = validationResult(req);
 
-    await Plant.findByIdAndDelete(req.body.plantid)
-    res.redirect("/")
+    const plant = await Plant.findById(req.query.id).populate("category").exec()
+
+    if (!errors.isEmpty()) {
+        res.render("plant_delete", {
+            title: "Delete Plant",
+            plant: plant,
+            confirm: req.query.confirm,
+            errors: errors.array()
+          })
+    } else {
+        await Plant.findByIdAndDelete(req.body.plantid)
+        res.redirect("/")
+        }
     }
-);
+)];

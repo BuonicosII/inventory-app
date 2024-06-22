@@ -3,11 +3,16 @@ extends layout
 block content
 
   h1 #{title}: #{plant.name}
-
-  p Do you really want to delete this Plant?
-
-  form(method='POST')
-    div.form-group
-      input#bookid.form-control(type='hidden', name='plantid', value=plant.id )
-
-    button.btn.btn-primary(type='submit') Delete
+  if (!confirm)
+    p Do you really want to delete this Plant?
+    a(href=`/delete-plant?id=${plant.id}&confirm=yes`)
+      button.btn.btn-primary Delete
+  else
+    p Confirm with the password
+    form(method='POST')
+      div.form-group
+        input#bookid.form-control(type='hidden', name='plantid', value=plant.id )
+        input(type='password', name='password')
+      if (errors)
+        p= errors[0].msg
+      button.btn.btn-primary(type='submit') Delete

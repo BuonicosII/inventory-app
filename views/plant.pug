@@ -7,7 +7,7 @@ block content
   p Description: #{plant.description}
   p In Stock: #{plant.inStock}
   p Price: #{plant.price}€
-  img(src=(plant.imageUrl===undefined ? "https://res.cloudinary.com/dibgwawel/image/upload/v1718394087/samples/cloudinary-icon.png" : plant.imageUrl))
+  img(src=(plant.imageUrl || "https://res.cloudinary.com/dibgwawel/image/upload/v1718394087/samples/cloudinary-icon.png"))
   a(href=`/update-plant?id=${plant.id}`)
     button Update plant
   a(href=`/delete-plant?id=${plant.id}`)
