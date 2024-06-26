@@ -129,5 +129,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-populatedb.js
-env.js
+.dockerignore
+Dockerfile
+fly.toml
