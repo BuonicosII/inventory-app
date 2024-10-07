@@ -12,7 +12,7 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
-// Set up mongoose connection
+/* Set up mongoose connection
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
 
@@ -22,6 +22,7 @@ main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect(mongoDB);
 }
+*/
 
 const RateLimit = require("express-rate-limit");
 const limiter = RateLimit({
