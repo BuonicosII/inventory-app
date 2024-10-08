@@ -4,7 +4,7 @@ const asyncHandler = require("express-async-handler")
 
 exports.category_detail = asyncHandler( async (req, res, next) => {
     
-    const searchedCategory = await db.getCategoryById(req.params.catUri)
+    const searchedCategory = await db.getCategoryByUri(req.params.catUri)
 
     if (searchedCategory === null) {
         const err = new Error("Page not found")

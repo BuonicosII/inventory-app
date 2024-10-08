@@ -1,3 +1,4 @@
+const db = require("../db/queries");
 const { body, validationResult } = require("express-validator")
 const asyncHandler = require("express-async-handler")
 const upload = require("../multer-config")
@@ -6,17 +7,17 @@ const cloudinary = require("../cloudinary-config")
 exports.plant_detail = asyncHandler( async (req, res, next) => {
 
     const [searchedCategory, searchedPlant] = await Promise.all([
-        Category.findOne({ uri: req.params.catUri}).exec(),
-        Plant.findOne({ uri: req.params.plantUri}).populate("category").exec()
+        await db.getCategoryByUri(req.params.catUri),
+        await db.getPlantByUri(req.params.plantUri)
     ])
     
-    if (searchedCategory === null || searchedPlant === null) {
+    if (searchedCategory[0] === undefined || searchedPlant[0] === undefined) {
         const err = new Error("Page not found")
         err.status = 404;
         return next(err);
     }
 
-    res.render("plant", { plant: searchedPlant})
+    res.render("plant", { plant: searchedPlant[0]})
 })
 
 exports.create_plant_get = asyncHandler( async (req, res, next) => {
