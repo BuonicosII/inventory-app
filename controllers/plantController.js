@@ -1,5 +1,3 @@
-const Plant = require("../models/plant")
-const Category = require("../models/category")
 const { body, validationResult } = require("express-validator")
 const asyncHandler = require("express-async-handler")
 const upload = require("../multer-config")

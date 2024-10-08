@@ -6,7 +6,7 @@ block content
   ul
     each plant in plants_in_category
       li 
-        a(href=plant.url) #{plant.name}
+        a(href=`/${plant.c_uri}/${plant.p_uri}`) #{plant.name}
   a(href=`/update-category?id=${id}`)
     button Update Category
   a(href=`/delete-category?id=${id}`)

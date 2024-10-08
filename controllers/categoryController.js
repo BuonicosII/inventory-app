@@ -1,11 +1,10 @@
-const Category = require("../models/category")
-const Plant = require("../models/plant")
+const db = require("../db/queries");
 const { body, validationResult } = require("express-validator");
 const asyncHandler = require("express-async-handler")
 
 exports.category_detail = asyncHandler( async (req, res, next) => {
     
-    const searchedCategory = await Category.findOne({ uri: req.params.catUri}).exec()
+    const searchedCategory = await db.getCategoryById(req.params.catUri)
 
     if (searchedCategory === null) {
         const err = new Error("Page not found")
@@ -13,10 +12,10 @@ exports.category_detail = asyncHandler( async (req, res, next) => {
         return next(err);
     }
 
-    const allPlants = await Plant.find({ category: searchedCategory.id}).populate("category").exec()
+    const allPlants = await db.getPlantsByCategory(searchedCategory[0].id)
 
 
-    res.render("category", { title: searchedCategory.name, plants_in_category: allPlants, id: searchedCategory.id})
+    res.render("category", { title: searchedCategory[0].name, plants_in_category: allPlants, id: searchedCategory[0].id})
 })
 
 exports.create_category_get = (req, res, next) => {
