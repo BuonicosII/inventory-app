@@ -31,3 +31,15 @@ exports.getAllCategories = async () => {
   const { rows } = await pool.query("SELECT * FROM categories");
   return rows;
 };
+
+exports.createNewPlant = async (plant) => {
+  await pool.query("INSERT INTO plants VALUES ($1, $2, $3, $4, $5, $6, $7)", [
+    plant.name,
+    plant.description,
+    plant.inStock,
+    plant.price,
+    plant.category,
+    plant.uri,
+    plant.imageUrl,
+  ]);
+};

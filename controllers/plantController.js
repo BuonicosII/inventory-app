@@ -66,7 +66,7 @@ exports.create_plant_post = [
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
-    const plant = new Plant({
+    const plant = {
       name: req.body.name,
       description: req.body.description,
       inStock: req.body.stock,
@@ -76,7 +76,7 @@ exports.create_plant_post = [
       ),
       uri: req.body.name.toLowerCase().replace(/\s+/g, "-"),
       imageUrl: "",
-    });
+    };
     if (req.file) {
       const b64 = Buffer.from(req.file.buffer).toString("base64");
       let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
@@ -84,7 +84,7 @@ exports.create_plant_post = [
       plant.imageUrl = cloudImage.url;
     }
 
-    const categories = await Category.find().exec();
+    const categories = await db.getAllCategories();
 
     if (!errors.isEmpty()) {
       res.render("add_plant_form", {
@@ -94,7 +94,7 @@ exports.create_plant_post = [
         errors: errors.array(),
       });
     } else {
-      await plant.save(),
+      await db.createNewPlant(plant),
         res.redirect(
           `/${categories.find(({ id }) => id === req.body.main).uri}/${
             plant.uri
