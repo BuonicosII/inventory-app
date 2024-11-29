@@ -71,8 +71,10 @@ exports.create_plant_post = [
       description: req.body.description,
       inStock: req.body.stock,
       price: req.body.price,
-      category: [req.body.main].concat(
-        req.body.category.filter((cat) => cat !== req.body.main)
+      category: [Number(req.body.main)].concat(
+        req.body.category.map((cat) => {
+          if (cat !== req.body.main) return Number(cat);
+        })
       ),
       uri: req.body.name.toLowerCase().replace(/\s+/g, "-"),
       imageUrl: "",
@@ -96,9 +98,10 @@ exports.create_plant_post = [
     } else {
       await db.createNewPlant(plant),
         res.redirect(
-          `/${categories.find(({ id }) => id === req.body.main).uri}/${
-            plant.uri
-          }`
+          `/${categories
+            .find(({ id }) => id === Number(req.body.main))
+            .name.toLowerCase()
+            .replace(/\s+/g, "-")}/${plant.uri}`
         );
     }
   }),

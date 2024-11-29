@@ -23,12 +23,12 @@ block content
             for category in categories 
               div(style='display: flex; padding-right:10px;')
                 if (undefined===plant)
-                  input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id)
+                  input.checkbox-input(type='checkbox', name='category', id=category.id, value=category.id)
                 else if (plant.category.some(e => e.id === category.id))
-                  input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id checked)
+                  input.checkbox-input(type='checkbox', name='category', id=category.id, value=category.id checked)
                 else
-                  input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id)
-                label(for=category._id) &nbsp;#{category.name}
+                  input.checkbox-input(type='checkbox', name='category', id=category.id, value=category.id)
+                label(for=category.id) &nbsp;#{category.name}
           input(type='file' name="image")
           if (update)
             div(style='display: flex; padding-right:10px;')
