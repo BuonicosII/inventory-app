@@ -67,3 +67,7 @@ exports.updatePlant = async (plant) => {
     ]
   );
 };
+
+exports.deletePlant = async (id) => {
+  await pool.query("DELETE FROM plants WHERE id = $1", [id]);
+};

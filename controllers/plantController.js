@@ -223,16 +223,16 @@ exports.update_plant_post = [
 ];
 
 exports.delete_plant_get = asyncHandler(async (req, res, next) => {
-  const plant = await Plant.findById(req.query.id).populate("category").exec();
+  const plant = await db.getPlantById(req.query.id);
 
-  if (plant === null) {
+  if (plant[0] === null) {
     // No results.
     res.redirect("/");
   }
 
   res.render("plant_delete", {
     title: "Delete Plant",
-    plant: plant,
+    plant: plant[0],
     confirm: req.query.confirm,
   });
 });
@@ -248,19 +248,17 @@ exports.delete_plant_post = [
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
-    const plant = await Plant.findById(req.query.id)
-      .populate("category")
-      .exec();
-
     if (!errors.isEmpty()) {
+      const plant = await db.getPlantById(req.query.id);
+
       res.render("plant_delete", {
         title: "Delete Plant",
-        plant: plant,
+        plant: plant[0],
         confirm: req.query.confirm,
         errors: errors.array(),
       });
     } else {
-      await Plant.findByIdAndDelete(req.body.plantid);
+      await db.deletePlant(req.body.plantid);
       res.redirect("/");
     }
   }),
