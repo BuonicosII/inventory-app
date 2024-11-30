@@ -109,8 +109,8 @@ exports.create_plant_post = [
 
 exports.update_plant_get = asyncHandler(async (req, res, next) => {
   const [plant, categories] = await Promise.all([
-    Plant.findById(req.query.id).populate("category").exec(),
-    Category.find().exec(),
+    await db.getPlantById(req.query.id),
+    await db.getAllCategories(),
   ]);
 
   if (plant === null) {
@@ -122,7 +122,7 @@ exports.update_plant_get = asyncHandler(async (req, res, next) => {
   res.render("add_plant_form", {
     title: "Update plant",
     categories: categories,
-    plant: plant,
+    plant: plant[0],
     update: "update",
   });
 });
@@ -175,17 +175,19 @@ exports.update_plant_post = [
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
-    const plant = new Plant({
+    const plant = {
       name: req.body.name,
       description: req.body.description,
       inStock: req.body.stock,
       price: req.body.price,
-      category: [req.body.main].concat(
-        req.body.category.filter((cat) => cat !== req.body.main)
+      category: [Number(req.body.main)].concat(
+        req.body.category.map((cat) => {
+          if (cat !== req.body.main) return Number(cat);
+        })
       ),
       uri: req.body.name.toLowerCase().replace(/\s+/g, "-"),
-      _id: req.query.id,
-    });
+      id: req.query.id,
+    };
 
     if (req.body.newImage && !req.file) {
       plant.imageUrl = "";
@@ -198,17 +200,9 @@ exports.update_plant_post = [
       plant.imageUrl = cloudImage.url;
     }
 
-    const categories = await Category.find().exec();
+    const categories = await db.getAllCategories();
 
     if (!errors.isEmpty()) {
-      const newArray = await Promise.all(
-        plant.category.map((id) => {
-          return Category.findById(id).exec();
-        })
-      );
-
-      plant.category = newArray;
-
       res.render("add_plant_form", {
         title: "Update plant",
         categories: categories,
@@ -217,9 +211,12 @@ exports.update_plant_post = [
         errors: errors.array(),
       });
     } else {
-      await Plant.findByIdAndUpdate(req.query.id, plant, {});
+      db.updatePlant(plant);
       res.redirect(
-        `/${categories.find(({ id }) => id === req.body.main).uri}/${plant.uri}`
+        `/${categories
+          .find(({ id }) => id === Number(req.body.main))
+          .name.toLowerCase()
+          .replace(/\s+/g, "-")}/${plant.uri}`
       );
     }
   }),

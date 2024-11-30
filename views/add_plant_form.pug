@@ -14,7 +14,7 @@ block content
           select(name='main' required)
             option(value='') --Select Main Category 
             each category in categories 
-                if (undefined===plant || plant.category[0].name !== category.name)
+                if (undefined===plant || plant.category[0] !== category.id)
                     option(value=category.id)= category.name 
                 else
                     option(value=category.id selected)= category.name 
@@ -24,7 +24,7 @@ block content
               div(style='display: flex; padding-right:10px;')
                 if (undefined===plant)
                   input.checkbox-input(type='checkbox', name='category', id=category.id, value=category.id)
-                else if (plant.category.some(e => e.id === category.id))
+                else if (plant.category.some(e => e === category.id))
                   input.checkbox-input(type='checkbox', name='category', id=category.id, value=category.id checked)
                 else
                   input.checkbox-input(type='checkbox', name='category', id=category.id, value=category.id)

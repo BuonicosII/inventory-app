@@ -27,6 +27,11 @@ exports.getPlantByUri = async (uri) => {
   return rows;
 };
 
+exports.getPlantById = async (id) => {
+  const { rows } = await pool.query("SELECT * FROM plants WHERE id = $1", [id]);
+  return rows;
+};
+
 exports.getAllCategories = async () => {
   const { rows } = await pool.query("SELECT * FROM categories");
   return rows;
@@ -43,6 +48,22 @@ exports.createNewPlant = async (plant) => {
       plant.category,
       plant.uri,
       plant.imageUrl,
+    ]
+  );
+};
+
+exports.updatePlant = async (plant) => {
+  await pool.query(
+    "UPDATE plants SET name = $1, description = $2, inStock = $3, price = $4, category = $5, uri = $6, imageUrl = $7 WHERE id = $8",
+    [
+      plant.name,
+      plant.description,
+      plant.inStock,
+      plant.price,
+      plant.category,
+      plant.uri,
+      plant.imageUrl,
+      plant.id,
     ]
   );
 };
