@@ -113,7 +113,7 @@ exports.update_plant_get = asyncHandler(async (req, res, next) => {
     await db.getAllCategories(),
   ]);
 
-  if (plant === null) {
+  if (plant[0] === undefined) {
     const err = new Error("Plant not found");
     err.status = 404;
     return next(err);
@@ -225,7 +225,7 @@ exports.update_plant_post = [
 exports.delete_plant_get = asyncHandler(async (req, res, next) => {
   const plant = await db.getPlantById(req.query.id);
 
-  if (plant[0] === null) {
+  if (plant[0] === undefined) {
     // No results.
     res.redirect("/");
   }

@@ -37,6 +37,13 @@ exports.getAllCategories = async () => {
   return rows;
 };
 
+exports.getCategoryById = async (id) => {
+  const { rows } = await pool.query("SELECT * FROM categories WHERE id = $1", [
+    id,
+  ]);
+  return rows;
+};
+
 exports.createNewPlant = async (plant) => {
   await pool.query(
     "INSERT INTO plants (name, description, inStock, price, category, uri, imageUrl) VALUES ($1, $2, $3, $4, $5, $6, $7)",
@@ -70,4 +77,23 @@ exports.updatePlant = async (plant) => {
 
 exports.deletePlant = async (id) => {
   await pool.query("DELETE FROM plants WHERE id = $1", [id]);
+};
+
+exports.createCategory = async (cat) => {
+  await pool.query("INSERT INTO categories (name, uri) VALUES ($1, $2)", [
+    cat.name,
+    cat.uri,
+  ]);
+};
+
+exports.updateCategory = async (cat) => {
+  await pool.query("UPDATE categories SET name = $1, uri = $2 WHERE id = $3", [
+    cat.name,
+    cat.uri,
+    cat.id,
+  ]);
+};
+
+exports.deleteCategory = async (id) => {
+  await pool.query("DELETE FROM categories WHERE id = $1", [id]);
 };

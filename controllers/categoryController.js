@@ -1,134 +1,162 @@
 const db = require("../db/queries");
 const { body, validationResult } = require("express-validator");
-const asyncHandler = require("express-async-handler")
+const asyncHandler = require("express-async-handler");
 
-exports.category_detail = asyncHandler( async (req, res, next) => {
-    
-    const searchedCategory = await db.getCategoryByUri(req.params.catUri)
+exports.category_detail = asyncHandler(async (req, res, next) => {
+  const searchedCategory = await db.getCategoryByUri(req.params.catUri);
 
-    if (searchedCategory === null) {
-        const err = new Error("Page not found")
-        err.status = 404;
-        return next(err);
-    }
+  if (searchedCategory[0] === undefined) {
+    const err = new Error("Page not found");
+    err.status = 404;
+    return next(err);
+  }
 
-    const allPlants = await db.getPlantsByCategory(searchedCategory[0].id)
+  const allPlants = await db.getPlantsByCategory(searchedCategory[0].id);
 
-
-    res.render("category", { title: searchedCategory[0].name, plants_in_category: allPlants, id: searchedCategory[0].id})
-})
+  res.render("category", {
+    title: searchedCategory[0].name,
+    plants_in_category: allPlants,
+    id: searchedCategory[0].id,
+  });
+});
 
 exports.create_category_get = (req, res, next) => {
-    res.render('add_category_form', { title: 'Add category' });
-}
+  res.render("add_category_form", { title: "Add category" });
+};
 
 exports.create_category_post = [
-    body("name").trim().isLength({ min: 1}).escape().withMessage("Category must have a a name")
-    //.isAlphanumeric().withMessage("Name must be alphanumeric!")
-    ,
-    asyncHandler( async (req, res, next) => {
-        const errors = validationResult(req)
+  body("name")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("Category must have a a name"),
+  //.isAlphanumeric().withMessage("Name must be alphanumeric!")
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
 
-        const category = new Category({
-            name: req.body.name,
-            uri: req.body.name.toLowerCase().replace(/\s+/g, "-")
-        })
+    const category = {
+      name: req.body.name,
+      uri: req.body.name.toLowerCase().replace(/\s+/g, "-"),
+    };
 
-        if (!errors.isEmpty()) {
-            res.render('add_category_form', { title: 'Add category', category: category, errors: errors.array() })
-
-        } else {
-            await category.save()
-            res.redirect(category.url)
-        }
-    })
-]
-
-exports.update_category_get =  asyncHandler( async (req, res, next) => {
-
-    const category = await Category.findById(req.query.id).exec()
-
-    if (category === null) {
-        const err = new Error("Category not found");
-        err.status = 404;
-        return next(err);
+    if (!errors.isEmpty()) {
+      res.render("add_category_form", {
+        title: "Add category",
+        category: category,
+        errors: errors.array(),
+      });
+    } else {
+      await db.createCategory(category);
+      res.redirect(category.uri);
     }
+  }),
+];
 
-    res.render('add_category_form', { title: 'Update category', category: category, update: "update" })
-})
+exports.update_category_get = asyncHandler(async (req, res, next) => {
+  const category = await db.getCategoryById(req.query.id);
+
+  if (category[0] === undefined) {
+    const err = new Error("Category not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("add_category_form", {
+    title: "Update category",
+    category: category,
+    update: "update",
+  });
+});
 
 exports.update_category_post = [
-    body("name").trim().isLength({ min: 1}).escape().withMessage("Category must have a a name"),
-    body("password").trim().isLength({ min: 1}).escape().withMessage("You must insert the password").equals("password").withMessage("Wrong password!"),
-    
-    asyncHandler( async (req, res, next) => {
-        const errors = validationResult(req)
+  body("name")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("Category must have a a name"),
+  body("password")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("You must insert the password")
+    .equals("password")
+    .withMessage("Wrong password!"),
 
-        const category = new Category({
-            name: req.body.name,
-            uri: req.body.name.toLowerCase().replace(/\s+/g, "-"),
-            _id: req.query.id
-        })
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
-            res.render('add_category_form', { title: 'Update category', category: category, errors: errors.array(), update: "update" })
+    const category = {
+      name: req.body.name,
+      uri: req.body.name.toLowerCase().replace(/\s+/g, "-"),
+      id: req.query.id,
+    };
 
-        } else {
-            await Category.findByIdAndUpdate(req.query.id, category, {})
-            res.redirect(category.url)
-        }
-    })
-]
+    if (!errors.isEmpty()) {
+      res.render("add_category_form", {
+        title: "Update category",
+        category: category,
+        errors: errors.array(),
+        update: "update",
+      });
+    } else {
+      await db.updateCategory(category);
+      res.redirect(category.uri);
+    }
+  }),
+];
 
 exports.category_delete_get = asyncHandler(async (req, res, next) => {
+  const [category, plants] = await Promise.all([
+    db.getCategoryById(req.query.id),
+    db.getPlantsByCategory(req.query.id),
+  ]);
 
-    const [category, plants] = await Promise.all([
-      Category.findById(req.query.id).exec(),
-      Plant.find({ category: req.query.id }).populate("category").exec(),
-    ]);
-  
-    if (category === null) {
-      // No results.
-      res.redirect("/");
-    }
-  
-    res.render("category_delete", {
-      title: "Delete Category",
-      category: category,
-      plants: plants,
-      confirm: req.query.confirm
-    });
+  if (category[0] === undefined) {
+    // No results.
+    res.redirect("/");
+  }
+
+  res.render("category_delete", {
+    title: "Delete Category",
+    category: category[0],
+    plants: plants,
+    confirm: req.query.confirm,
   });
+});
 
 exports.category_delete_post = [
-    body("password").trim().isLength({ min: 1}).escape().withMessage("You must insert the password").equals("password").withMessage("Wrong password!"),
-    asyncHandler( async (req, res, next) => {
-    
+  body("password")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("You must insert the password")
+    .equals("password")
+    .withMessage("Wrong password!"),
+  asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
     const [category, plants] = await Promise.all([
-        Category.findById(req.body.categoryid).exec(),
-        Plant.find({ category: req.body.categoryid }).populate("category").exec(),
-      ]);
-    
-      if (plants.length > 0) {
-        res.render("category_delete", {
-            title: "Delete Category",
-            category: category,
-            plants: plants,
-          });       
-      } else if (!errors.isEmpty()){
-        res.render("category_delete", {
-            title: "Delete Category",
-            category: category,
-            plants: plants,
-            confirm: req.query.confirm,
-            errors: errors.array()
-          });
-      } else {
-        await Category.findByIdAndDelete(req.body.categoryid)
-        res.redirect("/")
-      }
-    
+      db.getCategoryById(req.body.categoryid),
+      db.getPlantsByCategory(req.body.categoryid),
+    ]);
 
-})];
+    if (plants.length > 0) {
+      res.render("category_delete", {
+        title: "Delete Category",
+        category: category[0],
+        plants: plants,
+      });
+    } else if (!errors.isEmpty()) {
+      res.render("category_delete", {
+        title: "Delete Category",
+        category: category[0],
+        plants: plants,
+        confirm: req.query.confirm,
+        errors: errors.array(),
+      });
+    } else {
+      await db.deleteCategory(req.body.categoryid);
+      res.redirect("/");
+    }
+  }),
+];
